@@ -2,7 +2,9 @@
 
 Open-source predictive system that applies the **Degree-Day (DD) model** to track the development of the mite that transmits citrus leprosis (*Brevipalpus yothersi*, formerly treated as *B. phoenicis*) and support management decisions in commercial orchards. The goal is to replace the fixed spray calendar with intervention timing driven by the pest's **physiological time**.
 
-Supporting repository for an undergraduate thesis in Agricultural Engineering — UniFatecie, Paranavaí, Brazil.
+Supporting repository for an undergraduate thesis in Agronomy — UniFatecie, Paranavaí, Brazil.
+
+**Live demo:** https://leprose.pedroguarnieri.com.br
 
 ---
 

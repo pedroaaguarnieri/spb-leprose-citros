@@ -1,5 +1,5 @@
 # Thesis Summary: Degree-Day Model for *Brevipalpus yothersi* (citrus leprosis mite)
-*Work summary — Pedro Augusto de Andrade Guarniéri (Agricultural Engineering, UniFatecie)*
+*Work summary — Pedro Augusto de Andrade Guarniéri (Agronomy, UniFatecie)*
 
 ---
 
