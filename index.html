@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDD Monitor — Brevipalpus yothersi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ── TOKENS ── */
+:root {
+  /* Tema Light - Elegante e limpo */
+  --bg:      #f4f6f8;
+  --bg2:     #e9ecef;
+  --bg3:     #dee2e6;
+  --surf:    #ffffff;
+  --bdr:     rgba(0,0,0,0.05);
+  --bdr2:    rgba(0,0,0,0.1);
+  --tx:      #111827;
+  --tx2:     #374151;
+  --tx3:     #6b7280;
+
+  /* Primary (Laranja Cítrico vibrante - Agronomia) */
+  --tl:      #f97316;
+  --tl-mid:  #ea580c;
+  --tl-bg:   #fff7ed;
+  --tl-bdr:  rgba(249,115,22,0.2);
+
+  /* Warning (Âmbar) */
+  --am:      #d97706;
+  --am-mid:  #b45309;
+  --am-bg:   #fef3c7;
+  --am-bdr:  rgba(217,119,6,0.2);
+
+  /* Danger (Vermelho) */
+  --rd:      #ef4444;
+  --rd-mid:  #dc2626;
+  --rd-bg:   #fef2f2;
+  --rd-bdr:  rgba(239,68,68,0.2);
+
+  /* Info (Azul) */
+  --sl:      #3b82f6;
+  --sl-bg:   #eff6ff;
+  --sl-bdr:  rgba(59,130,246,0.2);
+
+  --mono:    'JetBrains Mono', 'Courier New', monospace;
+  --serif:   'Inter', 'Roboto', 'Outfit', sans-serif;
+  --r:       8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Tema Dark - Premium Charcoal com Neon */
+    --bg:      #0f1115;
+    --bg2:     #161920;
+    --bg3:     #1f242e;
+    --surf:    #161920;
+    --bdr:     rgba(255,255,255,0.05);
+    --bdr2:    rgba(255,255,255,0.08);
+    --tx:      #f3f4f6;
+    --tx2:     #d1d5db;
+    --tx3:     #9ca3af;
+
+    --tl:      #fb923c;
+    --tl-mid:  #f97316;
+    --tl-bg:   rgba(251,146,60,0.1);
+    --tl-bdr:  rgba(251,146,60,0.2);
+
+    --am:      #fbbf24;
+    --am-mid:  #f59e0b;
+    --am-bg:   rgba(251,191,36,0.1);
+    --am-bdr:  rgba(251,191,36,0.2);
+
+    --rd:      #f87171;
+    --rd-mid:  #ef4444;
+    --rd-bg:   rgba(248,113,113,0.1);
+    --rd-bdr:  rgba(248,113,113,0.2);
+
+    --sl:      #60a5fa;
+    --sl-bg:   rgba(96,165,250,0.1);
+    --sl-bdr:  rgba(96,165,250,0.2);
+  }
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html { scroll-behavior:smooth }
+body { background:var(--bg); color:var(--tx); font-family:var(--serif); font-size:15px; line-height:1.7; min-height:100vh }
+:focus-visible { outline:2px solid var(--tl); outline-offset:3px; border-radius:2px }
+.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0 }
+
+/* ── idiomas: cada trecho fica num span lang="pt|en|es"; só o idioma ativo aparece ── */
+[data-lang] [lang] { display:none }
+html[data-lang="pt"] [lang="pt"],
+html[data-lang="en"] [lang="en"],
+html[data-lang="es"] [lang="es"] { display:inline }
+
+/* ── HEADER ── */
+.hdr { background:var(--surf); border-bottom:1px solid var(--bdr2); padding:20px 32px 18px }
+.hdr-in { max-width:1180px; margin:0 auto; position:relative }
+.langsw { position:absolute; top:0; right:0; display:flex; gap:2px; border:1px solid var(--bdr2); border-radius:7px; padding:2px; background:var(--bg2) }
+.langsw button { appearance:none; border:0; background:transparent; color:var(--tx3); font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.04em; padding:5px 9px; border-radius:5px; cursor:pointer }
+.langsw button:hover { color:var(--tx) }
+.langsw button[aria-pressed="true"] { background:var(--tl); color:#fff }
+.eyebrow { font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--tx3); margin-bottom:7px; padding-right:110px }
+h1.title { font-family:var(--serif); font-size:19px; font-weight:600; line-height:1.3; color:var(--tx) }
+h1.title em { font-style:italic; font-weight:400 }
+.subtitle { font-family:var(--serif); font-size:12px; font-style:italic; color:var(--tx3); margin-top:3px }
+.author { font-family:var(--mono); font-size:10px; color:var(--tx3); margin-top:6px; letter-spacing:.02em }
+.author strong { color:var(--tx2); font-weight:500 }
+.badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px }
+.bdg { font-family:var(--mono); font-size:9.5px; font-weight:500; padding:3px 9px; border-radius:3px; border:1px solid; white-space:nowrap; letter-spacing:.03em }
+.bdg-tl { background:var(--tl-bg); color:var(--tl); border-color:var(--tl-bdr) }
+.bdg-sl { background:var(--sl-bg); color:var(--sl); border-color:var(--sl-bdr) }
+.bdg-am { background:var(--am-bg); color:var(--am); border-color:var(--am-bdr) }
+
+/* ── MAIN ── */
+.main { max-width:1180px; margin:0 auto; padding:24px 32px 64px }
+
+/* ── SECTION DIVIDER ── */
+.sec { display:flex; align-items:center; gap:10px; margin:28px 0 14px; border-top:1px solid var(--bdr2); padding-top:10px }
+.sec-lbl { font-family:var(--mono); font-size:9.5px; font-weight:500; text-transform:uppercase; letter-spacing:.14em; color:var(--tx3); white-space:nowrap }
+.sec-line { flex:1; height:1px; background:var(--bdr) }
+
+/* ── PARAM PANEL ── */
+.panel { background:var(--surf); border:1px solid var(--bdr2); border-radius:var(--r); padding:20px; box-shadow:0 4px 20px rgba(0,0,0,0.03) }
+
+/* Formulário flexível */
+.pform { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start; }
+
+.fld { display:flex; flex-direction:column; gap:6px; flex:1; min-width:140px; }
+.fld.f-lat { min-width:160px; }
+.fld.f-bio { min-width:180px; }
+.fld.fld-run { flex:0 1 auto; min-width:200px; padding-top:22px; } /* padding-top compensa a altura das labels para o botão alinhar com os inputs */
+
+.fld label { font-family:var(--mono); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--tx3) }
+.fld input, .fld select {
+  background:var(--bg2); border:1px solid var(--bdr2); border-radius:6px;
+  color:var(--tx); font-family:var(--mono); font-size:13px; padding:10px 12px;
+  transition:all .2s ease; width:100%
+}
+.fld input:focus, .fld select:focus { border-color:var(--tl); box-shadow:0 0 0 3px var(--tl-bg); outline:none; background:var(--surf); }
+.fld-hint { font-family:var(--serif); font-size:11px; color:var(--tx3); line-height:1.4; margin-top:2px; }
+
+/* Geolocation pill */
+.geo-pill {
+  display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  font-family:var(--serif); font-size:11px; font-weight:500; color:var(--tl);
+  background:var(--tl-bg); border:1px solid var(--tl-bdr); border-radius:4px;
+  padding:4px 8px; transition:all .2s; margin-top:4px;
+}
+.geo-pill:hover { opacity:1; background:var(--tl); color:#fff; border-color:var(--tl); }
+
+/* Botão — alinhado aos inputs */
+.btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:linear-gradient(135deg, var(--tl), var(--tl-mid)); color:#fff; border:none; border-radius:6px;
+  font-family:var(--serif); font-size:13px; font-weight:600; letter-spacing:.03em;
+  padding:11px 20px; cursor:pointer; width:100%;
+  transition:all .2s ease; white-space:nowrap; box-shadow:0 4px 12px var(--tl-bg);
+}
+.btn:hover  { filter:brightness(1.1); transform:translateY(-1px); }
+.btn:active { transform:translateY(1px); box-shadow:none; }
+.btn:disabled { opacity:.4; cursor:not-allowed }
+.btn-icon { font-size:13px; line-height:1 }
+
+/* ── STATUS ── */
+.status { display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10px; color:var(--tx3); padding:8px 0 0 }
+.sdot { width:6px; height:6px; border-radius:50%; background:var(--tx3); flex-shrink:0; transition:background .2s }
+.sdot.ok { background:var(--tl) }
+.sdot.loading { background:var(--am); animation:blink 1s infinite }
+.sdot.error { background:var(--rd) }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* ── KPI CARDS ── */
+.kpi-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px }
+@media(min-width:600px)  { .kpi-grid { grid-template-columns:repeat(3,1fr) } }
+@media(min-width:1000px) { .kpi-grid { grid-template-columns:repeat(4,1fr) } }
+
+.kcard {
+  background:var(--surf); border:1px solid var(--bdr2); border-radius:var(--r);
+  padding:14px 16px; display:flex; flex-direction:column; gap:4px;
+  border-top:2px solid var(--bdr2)
+}
+.kcard.k-tl { border-top-color:var(--tl) }
+.kcard.k-am { border-top-color:var(--am) }
+.kcard.k-rd { border-top-color:var(--rd) }
+.kcard.k-sl { border-top-color:var(--sl) }
+.kcard.k-nt { border-top-color:var(--tx3) }
+.kc-label { font-family:var(--mono); font-size:9px; text-transform:uppercase; letter-spacing:.10em; color:var(--tx3) }
+.kc-val   { font-family:var(--mono); font-size:18px; font-weight:500; color:var(--tx); line-height:1.1 }
+.kc-val.c-tl { color:var(--tl) }
+.kc-val.c-am { color:var(--am) }
+.kc-val.c-rd { color:var(--rd) }
+.kc-val.c-sl { color:var(--sl) }
+.kc-sub   { font-family:var(--serif); font-size:11px; font-style:italic; color:var(--tx3); line-height:1.3 }
+
+/* ── PROGRESS ── */
+.prg-card { background:var(--surf); border:1px solid var(--bdr2); border-radius:var(--r); padding:18px 20px }
+.prg-top  { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:4px; margin-bottom:12px }
+.prg-lbl  { font-family:var(--serif); font-size:13px; color:var(--tx2) }
+.prg-pct  { font-family:var(--mono); font-size:20px; font-weight:500; color:var(--tx) }
+.prg-track { height:6px; background:var(--bg3); border-radius:99px; overflow:hidden }
+.prg-fill  { height:100%; border-radius:99px; transition:width .7s cubic-bezier(.4,0,.2,1), background .4s }
+.prg-axis  { display:flex; justify-content:space-between; margin-top:6px; font-family:var(--mono); font-size:9.5px; color:var(--tx3) }
+.phase-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px }
+@media(max-width:560px) { .phase-strip { grid-template-columns:repeat(2,1fr) } }
+.ph {
+  padding:8px 10px; border-radius:4px; border:1px solid var(--bdr); text-align:center;
+  font-family:var(--mono); font-size:10px; color:var(--tx3); background:var(--bg2);
+  transition:background .3s, color .3s, border-color .3s; line-height:1.4
+}
+.ph strong { display:block; font-size:10px; font-weight:500 }
+.ph small  { font-size:9px; opacity:.65 }
+.ph.active { background:var(--tl-bg); color:var(--tl); border-color:var(--tl-bdr); font-weight:500 }
+
+/* ── ALERT ── */
+.alert { border-radius:4px; padding:16px 20px; border-left:3px solid; display:flex; gap:14px; align-items:flex-start }
+.alert.ok   { background:var(--tl-bg); border-color:var(--tl) }
+.alert.warn { background:var(--am-bg); border-color:var(--am) }
+.alert.crit { background:var(--rd-bg); border-color:var(--rd) }
+.a-mrk { font-family:var(--mono); font-size:9.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; margin-bottom:2px }
+.alert.ok   .a-mrk { color:var(--tl) }
+.alert.warn .a-mrk { color:var(--am) }
+.alert.crit .a-mrk { color:var(--rd) }
+.a-ttl { font-family:var(--serif); font-size:14px; font-weight:600; line-height:1.3; margin-bottom:3px }
+.a-bdy { font-family:var(--serif); font-size:12.5px; line-height:1.65; color:var(--tx2) }
+.a-bdy strong { color:var(--tx); font-weight:600 }
+.a-ico { font-size:20px; flex-shrink:0; margin-top:1px }
+
+/* ── CHARTS ── */
+.cg { display:grid; grid-template-columns:1fr; gap:14px }
+@media(min-width:760px) { .cg { grid-template-columns:3fr 2fr } }
+.cw { background:var(--surf); border:1px solid var(--bdr2); border-radius:var(--r); padding:18px 20px }
+.cw.full { grid-column:1/-1 }
+.ct { font-family:var(--mono); font-size:10px; font-weight:500; color:var(--tx2); text-transform:uppercase; letter-spacing:.08em }
+.cs { font-family:var(--serif); font-size:11px; font-style:italic; color:var(--tx3); margin-top:2px; margin-bottom:14px }
+
+/* Chart legend row */
+.leg { display:flex; gap:14px; flex-wrap:wrap; margin-top:8px }
+.li  { display:flex; align-items:center; gap:5px; font-family:var(--mono); font-size:9.5px; color:var(--tx3) }
+.lsq { width:10px; height:10px; border-radius:2px; flex-shrink:0 }
+.lln { width:18px; height:2px; flex-shrink:0 }
+.lda { width:18px; height:0; border-top:2px dashed; flex-shrink:0 }
+
+/* ── DATA TABLE ── */
+.dt-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--bdr2); border-radius:var(--r) }
+.dt { width:100%; border-collapse:collapse; font-family:var(--mono); font-size:11px }
+.dt thead th { text-align:left; padding:8px 11px; font-size:9px; font-weight:500; text-transform:uppercase; letter-spacing:.08em; color:var(--tx3); border-bottom:1px solid var(--bdr2); white-space:nowrap; background:var(--bg2) }
+.dt td { padding:6px 11px; border-bottom:1px solid var(--bdr); color:var(--tx2); white-space:nowrap }
+.dt tr:last-child td { border-bottom:none }
+.dt tr.rT td { background:var(--sl-bg); color:var(--tx) }
+.dt tr.rF td { color:var(--tx3); font-style:italic }
+.dt tr.rC td { background:var(--rd-bg) }
+.dt tr.rW td { background:var(--am-bg) }
+
+.pill { display:inline-block; padding:1px 7px; border-radius:3px; font-size:9px; font-weight:500; border:1px solid }
+.p-tl { background:var(--tl-bg); color:var(--tl); border-color:var(--tl-bdr) }
+.p-am { background:var(--am-bg); color:var(--am); border-color:var(--am-bdr) }
+.p-rd { background:var(--rd-bg); color:var(--rd); border-color:var(--rd-bdr) }
+.p-sl { background:var(--sl-bg); color:var(--sl); border-color:var(--sl-bdr) }
+.p-gy { background:var(--bg3); color:var(--tx3); border-color:var(--bdr2) }
+
+/* ── FOOTER ── */
+.ftr { border-top:1px solid var(--bdr2); padding:14px 32px; font-family:var(--mono); font-size:9.5px; color:var(--tx3); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; letter-spacing:.02em }
+
+@media(max-width:560px) {
+  .langsw { position:static; margin-bottom:10px; width:fit-content }
+  .eyebrow { padding-right:0 }
+}
+</style>
+</head>
+<body>
+
+<header class="hdr" role="banner">
+  <div class="hdr-in">
+    <div class="langsw" role="group" aria-label="Idioma / Language / Idioma">
+      <button type="button" data-lang="pt" aria-pressed="false">PT</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    </div>
+    <div class="eyebrow">
+      <span lang="pt">Monitoramento Bioclimático · Fitossanidade Citrícola · MIP</span>
+      <span lang="en">Bioclimatic Monitoring · Citrus Phytosanitation · IPM</span>
+      <span lang="es">Monitoreo Bioclimático · Fitosanidad Citrícola · MIP</span>
+    </div>
+    <h1 class="title">
+      <span lang="pt">Sistema de Graus-Dia — <em>Brevipalpus yothersi</em> (Ácaro-da-leprose dos citros)</span>
+      <span lang="en">Degree-Day System — <em>Brevipalpus yothersi</em> (citrus leprosis mite)</span>
+      <span lang="es">Sistema de Grados-Día — <em>Brevipalpus yothersi</em> (ácaro de la leprosis de los cítricos)</span>
+    </h1>
+    <p class="subtitle">
+      <span lang="pt">Modelo fisiológico de tempo térmico para previsão de ciclos do ácaro-da-leprose · Família Tenuipalpidae</span>
+      <span lang="en">Thermal-time physiological model to predict leprosis-mite cycles · Family Tenuipalpidae</span>
+      <span lang="es">Modelo fisiológico de tiempo térmico para predecir ciclos del ácaro de la leprosis · Familia Tenuipalpidae</span>
+    </p>
+    <p class="author">
+      <span lang="pt">Desenvolvido por <strong>Pedro Augusto de Andrade Guarniéri</strong> · Eng. Agrônomo &amp; Eng. de Software</span>
+      <span lang="en">Developed by <strong>Pedro Augusto de Andrade Guarniéri</strong> · Agricultural &amp; Software Engineer</span>
+      <span lang="es">Desarrollado por <strong>Pedro Augusto de Andrade Guarniéri</strong> · Ing. Agrónomo e Ing. de Software</span>
+    </p>
+    <div class="badges">
+      <span class="bdg bdg-tl">
+        <span lang="pt">GD = Média Aritmética</span>
+        <span lang="en">DD = Simple Average</span>
+        <span lang="es">GD = Media Aritmética</span>
+      </span>
+      <span class="bdg bdg-sl">
+        <span lang="pt">Fonte: Open-Meteo ERA5</span>
+        <span lang="en">Source: Open-Meteo ERA5</span>
+        <span lang="es">Fuente: Open-Meteo ERA5</span>
+      </span>
+      <span class="bdg bdg-am" id="bdg-coord">
+        <span lang="pt">Coordenadas não definidas</span>
+        <span lang="en">Coordinates not set</span>
+        <span lang="es">Coordenadas no definidas</span>
+      </span>
+    </div>
+    <p style="font-family:var(--serif); font-size:13px; color:var(--tx3); margin-top:16px; max-width:900px; line-height:1.6;">
+      <span lang="pt"><strong>Como utilizar:</strong> Este painel simula o ciclo de vida do ácaro cruzando o modelo térmico de <em>Chiavegato (1986)</em> com a realidade climática. Insira a coordenada do talhão e a data em que a praga foi primeiramente avistada (Biofix). O sistema fará a regressão das temperaturas passadas e calculará a previsão dos próximos 16 dias via satélite (Open-Meteo) para alertar sobre o exato momento de eclosão da nova geração.</span>
+      <span lang="en"><strong>How to use it:</strong> This dashboard simulates the mite's life cycle by crossing <em>Chiavegato's (1986)</em> thermal model with real weather. Enter the plot's coordinates and the date the pest was first spotted (biofix). The system regresses past temperatures and computes a 16-day satellite forecast (Open-Meteo) to flag the exact moment the next generation is expected to hatch.</span>
+      <span lang="es"><strong>Cómo usarlo:</strong> Este panel simula el ciclo de vida del ácaro cruzando el modelo térmico de <em>Chiavegato (1986)</em> con el clima real. Ingrese la coordenada del lote y la fecha en que se detectó la plaga por primera vez (biofix). El sistema hará la regresión de las temperaturas pasadas y calculará el pronóstico de los próximos 16 días vía satélite (Open-Meteo) para avisar el momento exacto de eclosión de la nueva generación.</span>
+    </p>
+  </div>
+</header>
+
+<main class="main" role="main">
+
+  <!-- §1 PARÂMETROS -->
+  <div class="sec"><span class="sec-lbl">
+    <span lang="pt">§1 — Parâmetros do Modelo</span>
+    <span lang="en">§1 — Model Parameters</span>
+    <span lang="es">§1 — Parámetros del Modelo</span>
+  </span><span class="sec-line"></span></div>
+
+  <div class="panel">
+    <div class="pform">
+
+      <div class="fld f-lat">
+        <label for="f-lat">
+          <span lang="pt">Latitude</span><span lang="en">Latitude</span><span lang="es">Latitud</span>
+        </label>
+        <input type="number" id="f-lat" step="0.0001" min="-90" max="90" value="">
+        <div id="geo-lat"></div>
+      </div>
+
+      <div class="fld">
+        <label for="f-lon">
+          <span lang="pt">Longitude</span><span lang="en">Longitude</span><span lang="es">Longitud</span>
+        </label>
+        <input type="number" id="f-lon" step="0.0001" min="-180" max="180" value="">
+        <span class="fld-hint">Ex: −45.1234</span>
+      </div>
+
+      <div class="fld f-bio">
+        <label for="f-biofix">
+          <span lang="pt">Biofix (Detecção Inicial)</span>
+          <span lang="en">Biofix (First Detection)</span>
+          <span lang="es">Biofix (Detección Inicial)</span>
+        </label>
+        <input type="date" id="f-biofix" max="2099-12-31">
+        <span class="fld-hint">
+          <span lang="pt">1ª ocorrência da praga</span>
+          <span lang="en">1st occurrence of the pest</span>
+          <span lang="es">1ª aparición de la plaga</span>
+        </span>
+      </div>
+
+      <div class="fld">
+        <label for="f-tb">T<sub>b</sub> (°C)</label>
+        <input type="number" id="f-tb" value="10.12" step="0.01" min="5" max="18">
+        <span class="fld-hint">
+          <span lang="pt">Temp. base</span><span lang="en">Base temp.</span><span lang="es">Temp. base</span>
+        </span>
+      </div>
+
+      <div class="fld">
+        <label for="f-k">
+          <span lang="pt">Constante K</span><span lang="en">Constant K</span><span lang="es">Constante K</span>
+        </label>
+        <input type="number" id="f-k" value="331" step="1" min="100" max="800">
+        <span class="fld-hint">
+          <span lang="pt">Graus-Dia (GD)</span><span lang="en">Degree-Days (DD)</span><span lang="es">Grados-Día (GD)</span>
+        </span>
+      </div>
+
+      <div class="fld fld-run">
+        <button class="btn" id="btn-run" onclick="runModel()">
+          <span class="btn-icon">▶</span>
+          <span lang="pt">Executar Modelo</span><span lang="en">Run Model</span><span lang="es">Ejecutar Modelo</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="status" aria-live="polite">
+    <div class="sdot" id="s-dot" aria-hidden="true"></div>
+    <span id="s-txt">Aguardando execução…</span>
+  </div>
+
+  <!-- §2 INDICADORES -->
+  <div class="sec"><span class="sec-lbl">
+    <span lang="pt">§2 — Indicadores do Modelo</span>
+    <span lang="en">§2 — Model Indicators</span>
+    <span lang="es">§2 — Indicadores del Modelo</span>
+  </span><span class="sec-line"></span></div>
+
+  <div class="kpi-grid">
+    <div class="kcard k-tl">
+      <span class="kc-label"><span lang="pt">GD Acumulados</span><span lang="en">Accumulated DD</span><span lang="es">GD Acumulados</span></span>
+      <span class="kc-val c-tl" id="kv-acc">—</span>
+      <span class="kc-sub" id="ki-acc">—</span>
+    </div>
+    <div class="kcard k-nt">
+      <span class="kc-label"><span lang="pt">% do Ciclo</span><span lang="en">% of Cycle</span><span lang="es">% del Ciclo</span></span>
+      <span class="kc-val" id="kv-pct">—</span>
+      <span class="kc-sub" id="ki-pct">—</span>
+    </div>
+    <div class="kcard k-nt">
+      <span class="kc-label"><span lang="pt">Estágio Biológico</span><span lang="en">Biological Stage</span><span lang="es">Estadio Biológico</span></span>
+      <span class="kc-val" id="kv-stage" style="font-size:13px">—</span>
+      <span class="kc-sub"><span lang="pt">fase mais provável</span><span lang="en">most likely stage</span><span lang="es">fase más probable</span></span>
+    </div>
+    <div class="kcard k-am">
+      <span class="kc-label"><span lang="pt">GD Remanescentes</span><span lang="en">Remaining DD</span><span lang="es">GD Restantes</span></span>
+      <span class="kc-val c-am" id="kv-rem">—</span>
+      <span class="kc-sub"><span lang="pt">para nova geração</span><span lang="en">for next generation</span><span lang="es">para nueva generación</span></span>
+    </div>
+    <div class="kcard k-am">
+      <span class="kc-label"><span lang="pt">Previsão de Eclosão</span><span lang="en">Hatch Forecast</span><span lang="es">Previsión de Eclosión</span></span>
+      <span class="kc-val c-am" id="kv-gen" style="font-size:14px">—</span>
+      <span class="kc-sub" id="ki-gen">—</span>
+    </div>
+    <div class="kcard k-rd">
+      <span class="kc-label"><span lang="pt">Janela de Controle</span><span lang="en">Control Window</span><span lang="es">Ventana de Control</span></span>
+      <span class="kc-val c-rd" id="kv-app" style="font-size:14px">—</span>
+      <span class="kc-sub"><span lang="pt">3 dias antes da eclosão</span><span lang="en">3 days before hatching</span><span lang="es">3 días antes de la eclosión</span></span>
+    </div>
+    <div class="kcard k-sl">
+      <span class="kc-label">T<sub><span lang="pt">méd</span><span lang="en">mean</span><span lang="es">med</span></sub> <span lang="pt">Hoje</span><span lang="en">Today</span><span lang="es">Hoy</span></span>
+      <span class="kc-val c-sl" id="kv-tmed">—</span>
+      <span class="kc-sub">(T<sub><span lang="pt">máx</span><span lang="en">max</span><span lang="es">máx</span></sub> + T<sub><span lang="pt">mín</span><span lang="en">min</span><span lang="es">mín</span></sub>) / 2</span>
+    </div>
+    <div class="kcard k-sl">
+      <span class="kc-label"><span lang="pt">GD Hoje</span><span lang="en">DD Today</span><span lang="es">GD Hoy</span></span>
+      <span class="kc-val c-sl" id="kv-gdh">—</span>
+      <span class="kc-sub">max(0, T<sub><span lang="pt">méd</span><span lang="en">mean</span><span lang="es">med</span></sub> − T<sub>b</sub>)</span>
+    </div>
+  </div>
+
+  <!-- §3 PROGRESSO -->
+  <div class="sec"><span class="sec-lbl">
+    <span lang="pt">§3 — Progresso Fisiológico do Ciclo</span>
+    <span lang="en">§3 — Cycle's Physiological Progress</span>
+    <span lang="es">§3 — Progreso Fisiológico del Ciclo</span>
+  </span><span class="sec-line"></span></div>
+
+  <div class="prg-card">
+    <div class="prg-top">
+      <span class="prg-lbl">
+        <span lang="pt">Completude</span><span lang="en">Completion</span><span lang="es">Completitud</span>
+         — <span id="p-loc">—</span>
+      </span>
+      <span class="prg-pct" id="p-pct" aria-live="polite">—</span>
+    </div>
+    <div class="prg-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="prog-bar">
+      <div class="prg-fill" id="p-fill" style="width:0%"></div>
+    </div>
+    <div class="prg-axis" aria-hidden="true">
+      <span><span lang="pt">Biofix</span><span lang="en">Biofix</span><span lang="es">Biofix</span> — 0 GD</span>
+      <span id="p-mid">50% · — GD</span>
+      <span><span lang="pt">Eclosão</span><span lang="en">Hatch</span><span lang="es">Eclosión</span> · <span id="p-k">—</span> GD</span>
+    </div>
+    <div class="phase-strip" role="list">
+      <div class="ph" id="ph0" role="listitem"><strong><span lang="pt">Ovo</span><span lang="en">Egg</span><span lang="es">Huevo</span></strong><small>0 – 40 %</small></div>
+      <div class="ph" id="ph1" role="listitem"><strong><span lang="pt">Larva</span><span lang="en">Larva</span><span lang="es">Larva</span></strong><small>40 – 55 %</small></div>
+      <div class="ph" id="ph2" role="listitem"><strong><span lang="pt">Protoninfa</span><span lang="en">Protonymph</span><span lang="es">Protoninfa</span></strong><small>55 – 75 %</small></div>
+      <div class="ph" id="ph3" role="listitem"><strong><span lang="pt">Deutoninfa</span><span lang="en">Deutonymph</span><span lang="es">Deutoninfa</span></strong><small>75 – 100 %</small></div>
+    </div>
+  </div>
+
+  <!-- §4 RECOMENDAÇÃO -->
+  <div class="sec"><span class="sec-lbl">
+    <span lang="pt">§4 — Recomendação Fitossanitária</span>
+    <span lang="en">§4 — Phytosanitary Recommendation</span>
+    <span lang="es">§4 — Recomendación Fitosanitaria</span>
+  </span><span class="sec-line"></span></div>
+
+  <div id="alert-card" class="alert ok" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="a-ico" id="a-ico" aria-hidden="true">📡</div>
+    <div>
+      <div class="a-mrk" id="a-mrk">—</div>
+      <div class="a-ttl" id="a-ttl">—</div>
+      <div class="a-bdy" id="a-bdy">—</div>
+    </div>
+  </div>
+
+  <!-- §5 GRÁFICOS -->
+  <div class="sec"><span class="sec-lbl">
+    <span lang="pt">§5 — Análise Gráfica</span>
+    <span lang="en">§5 — Chart Analysis</span>
+    <span lang="es">§5 — Análisis Gráfico</span>
+  </span><span class="sec-line"></span></div>
+
+  <div class="cg">
+    <div class="cw full">
+      <div class="ct">
+        <span lang="pt">Fig. 1 — Curva de desenvolvimento térmico acumulado</span>
+        <span lang="en">Fig. 1 — Accumulated thermal development curve</span>
+        <span lang="es">Fig. 1 — Curva de desarrollo térmico acumulado</span>
+      </div>
+      <div class="cs">
+        <span lang="pt">Histórico observado · Projeção 16 dias · Limiar K</span>
+        <span lang="en">Observed history · 16-day projection · Threshold K</span>
+        <span lang="es">Histórico observado · Proyección 16 días · Umbral K</span>
+      </div>
+      <div style="position:relative;height:260px"><canvas id="ch-main" role="img"></canvas></div>
+      <div class="leg" aria-hidden="true">
+        <span class="li"><span class="lln" style="background:var(--tl)"></span>∑GD <span lang="pt">Observado</span><span lang="en">Observed</span><span lang="es">Observado</span></span>
+        <span class="li"><span class="lda" style="border-color:var(--am)"></span>∑GD <span lang="pt">Projetado</span><span lang="en">Projected</span><span lang="es">Proyectado</span></span>
+        <span class="li"><span class="lda" style="border-color:var(--rd)"></span><span lang="pt">Limiar</span><span lang="en">Threshold</span><span lang="es">Umbral</span> K</span>
+        <span class="li"><span class="lln" style="background:var(--sl);opacity:.7"></span>T<span lang="pt">máx</span><span lang="en">max</span><span lang="es">máx</span></span>
+        <span class="li"><span class="lda" style="border-color:var(--sl);opacity:.5"></span>T<span lang="pt">mín</span><span lang="en">min</span><span lang="es">mín</span></span>
+      </div>
+    </div>
+
+    <div class="cw">
+      <div class="ct">
+        <span lang="pt">Fig. 2 — Aporte térmico diário (GD/dia)</span>
+        <span lang="en">Fig. 2 — Daily thermal input (DD/day)</span>
+        <span lang="es">Fig. 2 — Aporte térmico diario (GD/día)</span>
+      </div>
+      <div class="cs">
+        <span lang="pt">Energia efetiva diária para desenvolvimento</span>
+        <span lang="en">Effective daily energy for development</span>
+        <span lang="es">Energía efectiva diaria para desarrollo</span>
+      </div>
+      <div style="position:relative;height:200px"><canvas id="ch-bar" role="img"></canvas></div>
+      <div class="leg" aria-hidden="true">
+        <span class="li"><span class="lsq" style="background:var(--tl);opacity:.7"></span><span lang="pt">Observado</span><span lang="en">Observed</span><span lang="es">Observado</span></span>
+        <span class="li"><span class="lsq" style="background:var(--am);opacity:.6"></span><span lang="pt">Previsto</span><span lang="en">Forecast</span><span lang="es">Previsto</span></span>
+      </div>
+    </div>
+
+    <div class="cw">
+      <div class="ct">
+        <span lang="pt">Fig. 3 — Distribuição proporcional das fases</span>
+        <span lang="en">Fig. 3 — Proportional stage distribution</span>
+        <span lang="es">Fig. 3 — Distribución proporcional de las fases</span>
+      </div>
+      <div class="cs">
+        <span lang="pt">Proporção por estágio com base nos GD acumulados</span>
+        <span lang="en">Proportion per stage based on accumulated DD</span>
+        <span lang="es">Proporción por estadio según los GD acumulados</span>
+      </div>
+      <div style="position:relative;height:200px;display:flex;align-items:center;justify-content:center">
+        <canvas id="ch-donut" role="img"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- §6 TABELA -->
+  <div class="sec"><span class="sec-lbl">
+    <span lang="pt">§6 — Memória de Cálculo Diária</span>
+    <span lang="en">§6 — Daily Calculation Log</span>
+    <span lang="es">§6 — Memoria de Cálculo Diaria</span>
+  </span><span class="sec-line"></span></div>
+
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead>
+        <tr>
+          <th><span lang="pt">Data</span><span lang="en">Date</span><span lang="es">Fecha</span></th>
+          <th><span lang="pt">Tipo</span><span lang="en">Type</span><span lang="es">Tipo</span></th>
+          <th>T<span lang="pt">máx</span><span lang="en">max</span><span lang="es">máx</span> (°C)</th>
+          <th>T<span lang="pt">mín</span><span lang="en">min</span><span lang="es">mín</span> (°C)</th>
+          <th>T<span lang="pt">méd</span><span lang="en">mean</span><span lang="es">med</span> (°C)</th>
+          <th>GD/<span lang="pt">dia</span><span lang="en">day</span><span lang="es">día</span></th>
+          <th>∑GD</th><th>% K</th>
+          <th><span lang="pt">Status</span><span lang="en">Status</span><span lang="es">Estado</span></th>
+        </tr>
+      </thead>
+      <tbody id="t-body">
+        <tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:24px;font-style:italic" id="t-empty">
+          <span lang="pt">Execute o modelo para visualizar os dados.</span>
+          <span lang="en">Run the model to see the data.</span>
+          <span lang="es">Ejecute el modelo para ver los datos.</span>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer class="ftr" role="contentinfo">
+  <span>GD = max(0, T<sub>méd</sub> − T<sub>b</sub>) · T<sub>b</sub> = <span id="ft-tb">10.12</span> °C · K = <span id="ft-k">331</span> GD · Open-Meteo ERA5 + ECMWF</span>
+  <span>Chiavegato &amp; Mischan (1981) · Chiavegato (1986) · Pedro A. A. Guarniéri</span>
+</footer>
+
+<script>
+/* ── IDIOMA ── */
+const L = {
+  pt: {
+    htmlLang:'pt-BR', title:'GDD Monitor — Brevipalpus yothersi',
+    unit:'GD', coordPrefix:'Coord.: ',
+    awaiting:'Aguardando execução…',
+    running:'Consultando Open-Meteo e calculando tempo fisiológico…',
+    invalidCoord:'Coordenadas inválidas. Lat: −90..+90 · Lon: −180..+180',
+    invalidBiofix:'Data inválida: o Biofix não pode ser maior que hoje. O cálculo falharia!',
+    netError:m=>`Falha de rede: ${m}`,
+    httpError:s=>`HTTP ${s} — tente novamente.`,
+    badApiResponse:'Resposta inválida da API.',
+    badApiShape:'Estrutura inesperada na resposta da API.',
+    biofixOutOfRange:d=>`Biofix (${d}) fora do horizonte. Verifique a data.`,
+    doneStatus:(coord,tb,k,days)=>`Executado · ${coord} · Tb=${tb} °C · K=${k} GD · histórico=${days} dias`,
+    execError:m=>`Erro: ${m}`,
+    execFailMrk:'Falha de Execução', execFailTtl:'Não foi possível completar o modelo',
+    stages:['Ovo (incubação)','Larva (act./quies.)','Protoninfa (act./quies.)','Deutoninfa (act./quies.)','Adulto eclodido'],
+    since:(d,n)=>`Desde ${d} · ${n} dias`,
+    pctNote:pct=> pct>=90?'Eclosão iminente':pct>=60?'Fase ninfal avançada':'Desenvolvimento inicial',
+    genComplete:'Ciclo completo', genNewAdult:'Nova geração adulta estabelecida',
+    genOutOfRange:'> 16 dias', genDaysFromNow:n=>`~${n} dias a partir de hoje`, genUnavailable:'Fora do horizonte disponível',
+    appImmediate:'Imediato!', appWaiting:'Aguardando',
+    progressMid:k=>`50% · ${k} GD`,
+    alerts:{
+      crit1:{mrk:'Alerta Máximo', ttl:'Ciclo reprodutivo completo — geração adulta eclodida',
+        bdy:(gd,k)=>`Acúmulo de <strong>${gd} GD</strong> superou K = ${k} GD. Nova população de vetores estabelecida. Recomenda-se <strong>intervenção acaricida imediata</strong> com produtos registrados (ex.: abamectina, clorofentezina) sincronizada com liberação de predadores naturais (<em>Neoseiulus californicus</em>).`},
+      crit2:{mrk:'Alerta de Controle', ttl:(st,p)=>`Transição iminente — ${st} em ${p}% do ciclo`,
+        bdy:(gd,k,gen,app)=>`Acúmulo de <strong>${gd} / ${k} GD</strong>. Eclosão prevista: <strong>${gen}</strong>. <strong>Janela de aplicação: ${app}</strong> (3 dias antes da emergência adulta).`},
+      warn:{mrk:'Monitoramento Intensificado', ttl:(st,p)=>`Fase ninfal em progresso — ${st} (${p}% do ciclo)`,
+        bdy:(gd,mid)=>`Acúmulo de <strong>${gd} GD</strong>. Intensificar amostragem com lupa (10–20×) na face abaxial das folhas. Reavalie ao atingir <strong>${mid} GD</strong> (75% do ciclo).`},
+      ok:{mrk:'Desenvolvimento Inicial', ttl:p=>`Fase de ovo / incubação — ${p}% do ciclo completado`,
+        bdy:(gd,k,mid)=>`<strong>${gd} GD</strong> acumulados de <strong>${k} GD</strong> necessários. Manter monitoramento semanal. Reavalie ao atingir 50% do ciclo (<strong>${mid} GD</strong>).`}
+    },
+    chart:{tmax:'Tmáx', tmin:'Tmín', gdReal:'∑GD Real', gdFore:'∑GD Projetado', kLine:k=>`K=${k} GD`,
+      axisTemp:'Temperatura (°C)', axisGD:'∑GD', barObs:'Observado', barFore:'Previsto'},
+    table:{forecast:'previsão', field:'campo', preBiofix:'Pré-biofix', hatched:'Eclodido',
+      critical:'Crítico', attention:'Atenção', incubation:'Incubação', today:'hoje', hatch:'eclosão', apply:'aplicar'},
+    donutLabels:['Ovo','Larva','Protoninfa','Deutoninfa'],
+  },
+  en: {
+    htmlLang:'en', title:'GDD Monitor — Brevipalpus yothersi',
+    unit:'DD', coordPrefix:'Coord.: ',
+    awaiting:'Awaiting run…',
+    running:'Querying Open-Meteo and computing physiological time…',
+    invalidCoord:'Invalid coordinates. Lat: −90..+90 · Lon: −180..+180',
+    invalidBiofix:'Invalid date: biofix cannot be later than today. The calculation would fail!',
+    netError:m=>`Network error: ${m}`,
+    httpError:s=>`HTTP ${s} — please try again.`,
+    badApiResponse:'Invalid API response.',
+    badApiShape:'Unexpected API response shape.',
+    biofixOutOfRange:d=>`Biofix (${d}) is outside the available range. Check the date.`,
+    doneStatus:(coord,tb,k,days)=>`Done · ${coord} · Tb=${tb} °C · K=${k} DD · history=${days} days`,
+    execError:m=>`Error: ${m}`,
+    execFailMrk:'Run Failed', execFailTtl:'The model could not complete',
+    stages:['Egg (incubation)','Larva (active/quiescent)','Protonymph (active/quiescent)','Deutonymph (active/quiescent)','Adult emerged'],
+    since:(d,n)=>`Since ${d} · ${n} days`,
+    pctNote:pct=> pct>=90?'Hatching imminent':pct>=60?'Advanced nymphal stage':'Early development',
+    genComplete:'Cycle complete', genNewAdult:'New adult generation established',
+    genOutOfRange:'> 16 days', genDaysFromNow:n=>`~${n} days from today`, genUnavailable:'Outside the available range',
+    appImmediate:'Immediate!', appWaiting:'Waiting',
+    progressMid:k=>`50% · ${k} DD`,
+    alerts:{
+      crit1:{mrk:'Maximum Alert', ttl:'Reproductive cycle complete — adult generation emerged',
+        bdy:(gd,k)=>`Accumulation of <strong>${gd} DD</strong> exceeded K = ${k} DD. A new vector population is established. <strong>Immediate acaricide intervention</strong> is recommended with registered products (e.g., abamectin, clofentezine), synchronized with the release of natural predators (<em>Neoseiulus californicus</em>).`},
+      crit2:{mrk:'Control Alert', ttl:(st,p)=>`Transition imminent — ${st} at ${p}% of the cycle`,
+        bdy:(gd,k,gen,app)=>`Accumulation of <strong>${gd} / ${k} DD</strong>. Hatching forecast: <strong>${gen}</strong>. <strong>Application window: ${app}</strong> (3 days before adult emergence).`},
+      warn:{mrk:'Intensified Monitoring', ttl:(st,p)=>`Nymphal stage in progress — ${st} (${p}% of the cycle)`,
+        bdy:(gd,mid)=>`Accumulation of <strong>${gd} DD</strong>. Step up scouting with a hand lens (10–20×) on the underside of leaves. Reassess at <strong>${mid} DD</strong> (75% of the cycle).`},
+      ok:{mrk:'Early Development', ttl:p=>`Egg / incubation stage — ${p}% of the cycle completed`,
+        bdy:(gd,k,mid)=>`<strong>${gd} DD</strong> accumulated out of <strong>${k} DD</strong> needed. Keep weekly monitoring. Reassess at 50% of the cycle (<strong>${mid} DD</strong>).`}
+    },
+    chart:{tmax:'Tmax', tmin:'Tmin', gdReal:'∑DD Observed', gdFore:'∑DD Projected', kLine:k=>`K=${k} DD`,
+      axisTemp:'Temperature (°C)', axisGD:'∑DD', barObs:'Observed', barFore:'Forecast'},
+    table:{forecast:'forecast', field:'field', preBiofix:'Pre-biofix', hatched:'Hatched',
+      critical:'Critical', attention:'Attention', incubation:'Incubation', today:'today', hatch:'hatch', apply:'apply'},
+    donutLabels:['Egg','Larva','Protonymph','Deutonymph'],
+  },
+  es: {
+    htmlLang:'es', title:'GDD Monitor — Brevipalpus yothersi',
+    unit:'GD', coordPrefix:'Coord.: ',
+    awaiting:'Esperando ejecución…',
+    running:'Consultando Open-Meteo y calculando tiempo fisiológico…',
+    invalidCoord:'Coordenadas inválidas. Lat: −90..+90 · Lon: −180..+180',
+    invalidBiofix:'Fecha inválida: el biofix no puede ser posterior a hoy. ¡El cálculo fallaría!',
+    netError:m=>`Error de red: ${m}`,
+    httpError:s=>`HTTP ${s} — intente de nuevo.`,
+    badApiResponse:'Respuesta inválida de la API.',
+    badApiShape:'Estructura inesperada en la respuesta de la API.',
+    biofixOutOfRange:d=>`Biofix (${d}) fuera del horizonte disponible. Verifique la fecha.`,
+    doneStatus:(coord,tb,k,days)=>`Ejecutado · ${coord} · Tb=${tb} °C · K=${k} GD · histórico=${days} días`,
+    execError:m=>`Error: ${m}`,
+    execFailMrk:'Fallo de Ejecución', execFailTtl:'No fue posible completar el modelo',
+    stages:['Huevo (incubación)','Larva (activa/quiescente)','Protoninfa (activa/quiescente)','Deutoninfa (activa/quiescente)','Adulto eclosionado'],
+    since:(d,n)=>`Desde ${d} · ${n} días`,
+    pctNote:pct=> pct>=90?'Eclosión inminente':pct>=60?'Fase ninfal avanzada':'Desarrollo inicial',
+    genComplete:'Ciclo completo', genNewAdult:'Nueva generación adulta establecida',
+    genOutOfRange:'> 16 días', genDaysFromNow:n=>`~${n} días a partir de hoy`, genUnavailable:'Fuera del horizonte disponible',
+    appImmediate:'¡Inmediato!', appWaiting:'Esperando',
+    progressMid:k=>`50% · ${k} GD`,
+    alerts:{
+      crit1:{mrk:'Alerta Máxima', ttl:'Ciclo reproductivo completo — generación adulta eclosionada',
+        bdy:(gd,k)=>`La acumulación de <strong>${gd} GD</strong> superó K = ${k} GD. Nueva población de vectores establecida. Se recomienda <strong>intervención acaricida inmediata</strong> con productos registrados (ej.: abamectina, clofentezina) sincronizada con la liberación de depredadores naturales (<em>Neoseiulus californicus</em>).`},
+      crit2:{mrk:'Alerta de Control', ttl:(st,p)=>`Transición inminente — ${st} en ${p}% del ciclo`,
+        bdy:(gd,k,gen,app)=>`Acumulación de <strong>${gd} / ${k} GD</strong>. Eclosión prevista: <strong>${gen}</strong>. <strong>Ventana de aplicación: ${app}</strong> (3 días antes de la emergencia adulta).`},
+      warn:{mrk:'Monitoreo Intensificado', ttl:(st,p)=>`Fase ninfal en progreso — ${st} (${p}% del ciclo)`,
+        bdy:(gd,mid)=>`Acumulación de <strong>${gd} GD</strong>. Intensifique el muestreo con lupa (10–20×) en el envés de las hojas. Reevalúe al alcanzar <strong>${mid} GD</strong> (75% del ciclo).`},
+      ok:{mrk:'Desarrollo Inicial', ttl:p=>`Fase de huevo / incubación — ${p}% del ciclo completado`,
+        bdy:(gd,k,mid)=>`<strong>${gd} GD</strong> acumulados de <strong>${k} GD</strong> necesarios. Mantener monitoreo semanal. Reevalúe al alcanzar 50% del ciclo (<strong>${mid} GD</strong>).`}
+    },
+    chart:{tmax:'Tmáx', tmin:'Tmín', gdReal:'∑GD Real', gdFore:'∑GD Proyectado', kLine:k=>`K=${k} GD`,
+      axisTemp:'Temperatura (°C)', axisGD:'∑GD', barObs:'Observado', barFore:'Previsto'},
+    table:{forecast:'previsión', field:'campo', preBiofix:'Pre-biofix', hatched:'Eclosionado',
+      critical:'Crítico', attention:'Atención', incubation:'Incubación', today:'hoy', hatch:'eclosión', apply:'aplicar'},
+    donutLabels:['Huevo','Larva','Protoninfa','Deutoninfa'],
+  }
+};
+let LANG = 'pt';
+let hasRun = false;
+
+function detectLang(){
+  let l; try { l = localStorage.getItem('gdd_lang'); } catch(e){}
+  if (!L[l]) {
+    const n = (navigator.language||'en').toLowerCase();
+    l = n.indexOf('pt')===0 ? 'pt' : (n.indexOf('es')===0 ? 'es' : 'en');
+  }
+  return l;
+}
+function applyLang(lang, persist){
+  if (!L[lang]) lang = 'en';
+  LANG = lang;
+  const root = document.documentElement;
+  root.setAttribute('data-lang', lang);
+  root.setAttribute('lang', L[lang].htmlLang);
+  document.title = L[lang].title;
+  if (persist) { try { localStorage.setItem('gdd_lang', lang); } catch(e){} }
+  document.querySelectorAll('.langsw button').forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute('data-lang')===lang)));
+  const sTxt = document.getElementById('s-txt');
+  if (sTxt && !hasRun) sTxt.textContent = L[lang].awaiting;
+  if (hasRun) runModel();
+}
+
+let _ch = {};
+const MONO = "'JetBrains Mono', monospace";
+
+function isDark() { return window.matchMedia('(prefers-color-scheme:dark)').matches }
+function dc() {
+  return isDark()
+    ? { tl:'#fb923c', am:'#fbbf24', rd:'#f87171', sl:'#60a5fa', tx2:'#d1d5db', tx3:'#9ca3af', bg:'rgba(255,255,255,.05)' }
+    : { tl:'#f97316', am:'#d97706', rd:'#ef4444', sl:'#3b82f6', tx2:'#374151', tx3:'#6b7280', bg:'rgba(0,0,0,.05)' }
+}
+
+function today() {
+  const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0,10)
+}
+function addDays(s, n) {
+  const d = new Date(s+'T12:00:00'); d.setDate(d.getDate()+n);
+  return d.toISOString().slice(0,10)
+}
+/* pt/es: dd/mm/aaaa (igual ao original) · en: aaaa-mm-dd (ISO, sem ambiguidade) */
+function fmtDate(s) {
+  if (!s) return '—';
+  const [y,m,d] = s.split('-');
+  return LANG === 'en' ? `${y}-${m}-${d}` : `${d}/${m}/${y}`;
+}
+function fmtShort(s) {
+  if (!s) return ''; const [,m,d] = s.split('-'); return `${d}/${m}`
+}
+function gdCalc(tmax, tmin, tb) {
+  const tm = (tmax + tmin) / 2;
+  return tm > tb ? +(tm - tb).toFixed(4) : 0
+}
+function stageFromPct(p) {
+  const s = L[LANG].stages;
+  if (p >= 100) return s[4];
+  if (p >= 75)  return s[3];
+  if (p >= 55)  return s[2];
+  if (p >= 40)  return s[1];
+  return s[0]
+}
+function setStatus(state, msg) {
+  const d = document.getElementById('s-dot');
+  d.className = 'sdot' + (state==='loading' ? ' loading' : state==='ok' ? ' ok' : state==='error' ? ' error' : '');
+  document.getElementById('s-txt').textContent = msg
+}
+function killChart(k) { if (_ch[k]) { _ch[k].destroy(); delete _ch[k] } }
+
+/* ── GEOLOCATION ── */
+function tryGeo() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude.toFixed(4);
+    const lon = pos.coords.longitude.toFixed(4);
+    if (!document.getElementById('f-lat').value) document.getElementById('f-lat').value = lat;
+    if (!document.getElementById('f-lon').value) document.getElementById('f-lon').value = lon;
+    const t = {pt:'Usar localização atual', en:'Use current location', es:'Usar ubicación actual'};
+    document.getElementById('geo-lat').innerHTML =
+      `<span class="geo-pill" onclick="document.getElementById('f-lat').value='${lat}';document.getElementById('f-lon').value='${lon}'">📍 ${t[LANG]} (${lat}, ${lon})</span>`;
+  }, ()=>{});
+}
+
+/* ── INIT ── */
+document.getElementById('f-biofix').value = today();
+document.getElementById('f-biofix').max = today(); // Bloqueia data futura no próprio calendário
+
+/* ── MAIN MODEL ── */
+async function runModel() {
+  const t = L[LANG];
+  hasRun = true;
+  const btn = document.getElementById('btn-run');
+  btn.disabled = true;
+  setStatus('loading', t.running);
+
+  const lat = parseFloat(document.getElementById('f-lat').value);
+  const lon = parseFloat(document.getElementById('f-lon').value);
+  if (isNaN(lat)||isNaN(lon)||lat<-90||lat>90||lon<-180||lon>180) {
+    setStatus('error', t.invalidCoord);
+    btn.disabled=false; return
+  }
+
+  const TB = parseFloat(document.getElementById('f-tb').value) || 10.12;
+  const K  = parseInt(document.getElementById('f-k').value)    || 331;
+  document.getElementById('ft-tb').textContent = TB;
+  document.getElementById('ft-k').textContent  = K;
+
+  let biofixRaw = document.getElementById('f-biofix').value;
+  let biofix = biofixRaw;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(biofixRaw)) {
+    const [dd,mm,yyyy] = biofixRaw.split('/'); biofix = `${yyyy}-${mm}-${dd}`
+  }
+
+  const tod = today();
+
+  if (biofix > tod) {
+    setStatus('error', t.invalidBiofix);
+    btn.disabled = false; return;
+  }
+
+  const diffDays = Math.ceil((new Date(tod+'T12:00:00') - new Date(biofix+'T12:00:00')) / 86400000);
+  const pastDays = Math.min(92, Math.max(10, diffDays+5));
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min&past_days=${pastDays}&forecast_days=16&timezone=America%2FSao_Paulo`;
+    let res;
+    try { res = await fetch(url) } catch(e) { throw new Error(t.netError(e.message)) }
+    if (!res.ok) throw new Error(t.httpError(res.status));
+    let data;
+    try { data = await res.json() } catch(e) { throw new Error(t.badApiResponse) }
+    if (!data.daily?.time) throw new Error(t.badApiShape);
+
+    const dates = data.daily.time;
+    const tmaxA = data.daily.temperature_2m_max;
+    const tminA = data.daily.temperature_2m_min;
+    for (let i=0; i<tmaxA.length; i++) {
+      if (tmaxA[i]===null) tmaxA[i] = i>0 ? tmaxA[i-1] : 25;
+      if (tminA[i]===null) tminA[i] = i>0 ? tminA[i-1] : 15;
+    }
+
+    const todIdx = dates.indexOf(tod);
+    const infIdx = dates.findIndex(d => d >= biofix);
+    if (infIdx===-1) throw new Error(t.biofixOutOfRange(fmtDate(biofix)));
+
+    let gdAcc = 0;
+    const gdAccArr = new Array(dates.length).fill(null);
+    const gdDayArr = new Array(dates.length).fill(null);
+    const isFore   = dates.map(d => d > tod);
+
+    for (let i=0; i<dates.length; i++) {
+      const g = gdCalc(tmaxA[i], tminA[i], TB);
+      gdDayArr[i] = g;
+      if (i >= infIdx) { gdAcc += g; gdAccArr[i] = +gdAcc.toFixed(2) }
+    }
+
+    const curIdx = todIdx >= 0 ? todIdx : dates.length - 17;
+    const gdNow  = gdAccArr[curIdx] !== null ? gdAccArr[curIdx] : gdAcc;
+    const pct    = Math.min(100, Math.round((gdNow / K) * 100));
+    const gdRem  = Math.max(0, K - gdNow);
+
+    let genDate = null;
+    if (gdNow >= K) {
+      for (let i=infIdx; i<=curIdx; i++) {
+        if (gdAccArr[i] >= K) { genDate = dates[i]; break }
+      }
+    } else {
+      let a2 = gdNow;
+      for (let i=curIdx+1; i<dates.length; i++) {
+        a2 += gdCalc(tmaxA[i], tminA[i], TB);
+        if (a2 >= K) { genDate = dates[i]; break }
+      }
+    }
+
+    const appDate = genDate ? addDays(genDate, -3) : null;
+    const tmaxH = todIdx >= 0 ? tmaxA[todIdx] : null;
+    const tminH = todIdx >= 0 ? tminA[todIdx] : null;
+    const tmedH = tmaxH !== null ? ((tmaxH + tminH) / 2).toFixed(1) : null;
+    const gdH   = tmaxH !== null ? gdCalc(tmaxH, tminH, TB).toFixed(2) : null;
+    const stageStr = stageFromPct(pct);
+    const coordStr = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+    document.getElementById('bdg-coord').textContent = t.coordPrefix + coordStr;
+
+    /* KPI CARDS */
+    document.getElementById('kv-acc').textContent  = gdNow.toFixed(1) + ' ' + t.unit;
+    document.getElementById('ki-acc').textContent  = t.since(fmtDate(biofix), diffDays);
+    document.getElementById('kv-pct').textContent  = pct + '%';
+    document.getElementById('ki-pct').textContent  = t.pctNote(pct);
+    document.getElementById('kv-stage').textContent = stageStr;
+    document.getElementById('kv-rem').textContent  = gdRem.toFixed(1) + ' ' + t.unit;
+    document.getElementById('kv-tmed').textContent = tmedH !== null ? tmedH + ' °C' : '—';
+    document.getElementById('kv-gdh').textContent  = gdH !== null ? gdH + ' ' + t.unit : '—';
+
+    if (gdNow >= K) {
+      document.getElementById('kv-gen').textContent = genDate ? fmtDate(genDate) : t.genComplete;
+      document.getElementById('ki-gen').textContent = t.genNewAdult;
+    } else {
+      document.getElementById('kv-gen').textContent = genDate ? fmtDate(genDate) : t.genOutOfRange;
+      if (genDate) {
+        const dias = Math.round((new Date(genDate+'T12:00:00') - new Date(tod+'T12:00:00')) / 86400000);
+        document.getElementById('ki-gen').textContent = t.genDaysFromNow(dias);
+      } else {
+        document.getElementById('ki-gen').textContent = t.genUnavailable;
+      }
+    }
+    document.getElementById('kv-app').textContent = gdNow >= K ? t.appImmediate : appDate ? fmtDate(appDate) : t.appWaiting;
+
+    /* PROGRESS */
+    document.getElementById('p-loc').textContent = coordStr;
+    document.getElementById('p-pct').textContent = pct + '%';
+    document.getElementById('p-mid').textContent = t.progressMid(Math.round(K*0.5));
+    document.getElementById('p-k').textContent   = K;
+    document.getElementById('prog-bar').setAttribute('aria-valuenow', pct);
+    const fill = document.getElementById('p-fill');
+    fill.style.width = pct + '%';
+    fill.style.background = pct>=90 ? 'var(--rd)' : pct>=60 ? 'var(--am)' : 'var(--tl)';
+    const phLimits = [40,55,75,100];
+    ['ph0','ph1','ph2','ph3'].forEach((id,i) => {
+      const active = pct>=100 ? i===3 : pct<phLimits[i] && (i===0||pct>=phLimits[i-1]);
+      document.getElementById(id).classList.toggle('active', active)
+    });
+
+    /* ALERT */
+    const ac = document.getElementById('alert-card');
+    ac.className = 'alert';
+    const am2 = document.getElementById('a-mrk');
+    const at  = document.getElementById('a-ttl');
+    const ab  = document.getElementById('a-bdy');
+    const ai  = document.getElementById('a-ico');
+    const gdNowS = gdNow.toFixed(1);
+    if (gdNow >= K) {
+      ac.classList.add('crit'); ai.textContent='⛔'; am2.textContent=t.alerts.crit1.mrk;
+      at.textContent=t.alerts.crit1.ttl;
+      ab.innerHTML=t.alerts.crit1.bdy(gdNowS, K);
+    } else if (pct>=75) {
+      ac.classList.add('crit'); ai.textContent='⚠️'; am2.textContent=t.alerts.crit2.mrk;
+      at.textContent=t.alerts.crit2.ttl(stageStr, pct);
+      ab.innerHTML=t.alerts.crit2.bdy(gdNowS, K, fmtDate(genDate), fmtDate(appDate));
+    } else if (pct>=50) {
+      ac.classList.add('warn'); ai.textContent='🔍'; am2.textContent=t.alerts.warn.mrk;
+      at.textContent=t.alerts.warn.ttl(stageStr, pct);
+      ab.innerHTML=t.alerts.warn.bdy(gdNowS, Math.round(K*0.75));
+    } else {
+      ac.classList.add('ok'); ai.textContent='✅'; am2.textContent=t.alerts.ok.mrk;
+      at.textContent=t.alerts.ok.ttl(pct);
+      ab.innerHTML=t.alerts.ok.bdy(gdNowS, K, Math.round(K*0.5));
+    }
+
+    /* CHARTS */
+    const c = dc();
+    const visStart = Math.max(0, infIdx-2);
+    const sl = arr => arr.slice(visStart);
+    const labels = sl(dates).map(fmtShort);
+    const fDates = sl(dates);
+    const tmaxV  = sl(tmaxA);
+    const tminV  = sl(tminA);
+    const gdAccV = sl(gdAccArr);
+    const gdDayV = sl(gdDayArr);
+    const isForV = sl(isFore);
+
+    const gdReal = gdAccV.map((v,i) => !isForV[i] ? v : null);
+    const gdFore = gdAccV.map((v,i) =>  isForV[i] ? v : null);
+    const lastR  = gdReal.reduce((li,v,i) => v!==null ? i : li, -1);
+    if (lastR>=0 && lastR+1<gdFore.length) gdFore[lastR] = gdReal[lastR];
+    const kLine  = gdAccV.map(() => K);
+
+    const tooltipCfg = { backgroundColor:isDark()?'#1c1b12':'#fff', borderColor:c.bg, borderWidth:1, titleFont:{family:MONO,size:11}, bodyFont:{family:MONO,size:11}, titleColor:isDark()?'#ece8d4':'#18160f', bodyColor:c.tx2 };
+
+    killChart('main');
+    _ch['main'] = new Chart(document.getElementById('ch-main'), {
+      data:{ labels, datasets:[
+        { type:'line', label:t.chart.tmax, data:tmaxV, borderColor:c.sl, borderWidth:1.2, pointRadius:0, yAxisID:'yT', tension:0.3, fill:false },
+        { type:'line', label:t.chart.tmin, data:tminV, borderColor:c.sl+'55', borderWidth:.8, borderDash:[4,3], pointRadius:0, yAxisID:'yT', tension:0.3, fill:false },
+        { type:'line', label:t.chart.gdReal, data:gdReal, borderColor:c.tl, borderWidth:2.5, pointRadius:0, yAxisID:'yGD', tension:0.1, fill:{target:'origin',above:isDark()?'rgba(46,207,178,0.07)':'rgba(14,127,110,0.06)'} },
+        { type:'line', label:t.chart.gdFore, data:gdFore, borderColor:c.am, borderWidth:2, borderDash:[5,4], pointRadius:0, yAxisID:'yGD', tension:0.1, fill:false },
+        { type:'line', label:t.chart.kLine(K), data:kLine, borderColor:c.rd+'88', borderWidth:1.5, borderDash:[3,4], pointRadius:0, yAxisID:'yGD', fill:false },
+      ]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{display:false}, tooltip:tooltipCfg},
+        scales:{
+          x:{ ticks:{color:c.tx3,font:{family:MONO,size:9}}, grid:{color:c.bg} },
+          yT:{ position:'left', title:{display:true,text:t.chart.axisTemp,color:c.tx3,font:{size:10,family:MONO}}, ticks:{color:c.tx3,font:{family:MONO,size:10}}, grid:{color:c.bg} },
+          yGD:{ position:'right', title:{display:true,text:t.chart.axisGD,color:c.tx3,font:{size:10,family:MONO}}, ticks:{color:c.tx3,font:{family:MONO,size:10}}, grid:{drawOnChartArea:false} }
+        }
+      }
+    });
+
+    killChart('bar');
+    const gdR = gdDayV.map((v,i) => (!isForV[i] && fDates[i]>=biofix) ? v : null);
+    const gdF = gdDayV.map((v,i) => ( isForV[i] && fDates[i]>=biofix) ? v : null);
+    _ch['bar'] = new Chart(document.getElementById('ch-bar'), {
+      type:'bar',
+      data:{ labels, datasets:[
+        { label:t.chart.barObs, data:gdR, backgroundColor:isDark()?'rgba(46,207,178,.50)':'rgba(14,127,110,.45)' },
+        { label:t.chart.barFore,  data:gdF, backgroundColor:isDark()?'rgba(232,168,48,.45)':'rgba(138,88,0,.40)' },
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:tooltipCfg},
+        scales:{ x:{ticks:{color:c.tx3,font:{family:MONO,size:9}},grid:{color:c.bg}}, y:{ticks:{color:c.tx3,font:{family:MONO,size:10}},grid:{color:c.bg}} }
+      }
+    });
+
+    killChart('donut');
+    const dl = t.donutLabels;
+    const fases=[{l:dl[0],p:40},{l:dl[1],p:15},{l:dl[2],p:20},{l:dl[3],p:25}];
+    let ap=0;
+    const dd2 = fases.map(f=>{const ini=ap;ap+=f.p;return{filled:Math.max(0,Math.min(f.p,pct-ini)),empty:Math.max(0,f.p-Math.max(0,pct-ini))};});
+    const fcols = isDark()
+      ? ['rgba(46,207,178,.80)','rgba(106,160,220,.80)','rgba(157,140,250,.80)','rgba(232,168,48,.80)']
+      : ['rgba(14,127,110,.70)','rgba(45,74,107,.70)','rgba(90,60,160,.70)','rgba(138,88,0,.70)'];
+    const ecols = isDark()
+      ? ['rgba(46,207,178,.09)','rgba(106,160,220,.09)','rgba(157,140,250,.09)','rgba(232,168,48,.09)']
+      : ['rgba(14,127,110,.07)','rgba(45,74,107,.07)','rgba(90,60,160,.07)','rgba(138,88,0,.07)'];
+    _ch['donut'] = new Chart(document.getElementById('ch-donut'), {
+      type:'doughnut',
+      data:{ labels:fases.map(f=>f.l), datasets:[
+        {data:dd2.map(d=>d.filled),backgroundColor:fcols,borderWidth:0},
+        {data:dd2.map(d=>d.empty), backgroundColor:ecols,borderWidth:0},
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'70%',
+        plugins:{ legend:{position:'bottom',labels:{color:c.tx2,font:{family:MONO,size:10},padding:12,boxWidth:12,boxHeight:12}} }
+      }
+    });
+
+    /* DATA TABLE */
+    const tbody = document.getElementById('t-body');
+    tbody.innerHTML = '';
+    const tStart = infIdx; // Mostra tudo desde o biofix
+
+    let rAcc = 0;
+    for (let i=tStart; i<dates.length; i++) {
+      const g = gdCalc(tmaxA[i], tminA[i], TB);
+      const inCycle = i >= infIdx;
+      if (inCycle) rAcc += g;
+      const tmed  = ((tmaxA[i]+tminA[i])/2).toFixed(1);
+      const rPct  = inCycle ? Math.min(100,Math.round((rAcc/K)*100)) : null;
+      const fore  = isFore[i];
+      const isT   = dates[i] === tod;
+      const isGen = genDate && dates[i] === genDate;
+      const isApp = appDate && dates[i] === appDate;
+      let cls = fore ? 'rF' : '';
+      if (isT) cls='rT';
+      else if (rPct!==null && rPct>=90) cls='rC';
+      else if (rPct!==null && rPct>=60) cls='rW';
+      let pill = `<span class="pill p-gy">—</span>`;
+      if (!inCycle)       pill=`<span class="pill p-gy">${t.table.preBiofix}</span>`;
+      else if (rPct>=100) pill=`<span class="pill p-rd">${t.table.hatched}</span>`;
+      else if (rPct>=75)  pill=`<span class="pill p-rd">${t.table.critical}</span>`;
+      else if (rPct>=50)  pill=`<span class="pill p-am">${t.table.attention}</span>`;
+      else                pill=`<span class="pill p-tl">${t.table.incubation}</span>`;
+      const extras=[
+        isT   ? `<span class="pill p-sl" style="font-size:8.5px;margin-left:3px">${t.table.today}</span>` : '',
+        isGen ? `<span class="pill p-rd" style="font-size:8.5px;margin-left:3px">${t.table.hatch}</span>` : '',
+        isApp ? `<span class="pill p-am" style="font-size:8.5px;margin-left:3px">${t.table.apply}</span>` : '',
+      ].join('');
+      tbody.innerHTML += `<tr class="${cls}">
+        <td>${fmtDate(dates[i])}${extras}</td>
+        <td>${fore?`<span class="pill p-gy">${t.table.forecast}</span>`:`<span class="pill p-sl">${t.table.field}</span>`}</td>
+        <td>${tmaxA[i].toFixed(1)}</td><td>${tminA[i].toFixed(1)}</td><td>${tmed}</td>
+        <td>${inCycle?g.toFixed(2):'—'}</td>
+        <td>${inCycle?rAcc.toFixed(1):'—'}</td>
+        <td>${rPct!==null?rPct+'%':'—'}</td>
+        <td>${pill}</td>
+      </tr>`;
+    }
+
+    setStatus('ok', t.doneStatus(coordStr, TB, K, pastDays));
+    btn.disabled = false;
+
+  } catch(e) {
+    setStatus('error', t.execError(e.message));
+    const ac = document.getElementById('alert-card');
+    ac.className = 'alert warn';
+    document.getElementById('a-ico').textContent = '⚠️';
+    document.getElementById('a-mrk').textContent = t.execFailMrk;
+    document.getElementById('a-ttl').textContent = t.execFailTtl;
+    document.getElementById('a-bdy').textContent = e.message;
+    btn.disabled = false;
+  }
+}
+
+applyLang(detectLang(), false);
+document.querySelectorAll('.langsw button').forEach(btn => {
+  btn.addEventListener('click', () => applyLang(btn.getAttribute('data-lang'), true));
+});
+
+tryGeo();
+runModel();
+</script>
+</body>
+</html>
